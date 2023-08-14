@@ -7,6 +7,7 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
+        services.AddTransient<IPasswordHasherService, PasswordHasherService>();
         services.AddTransient<ITokensService, TokensService>();
         services.AddTransient<IIdentitiesService, IdentitiesService>();
 
