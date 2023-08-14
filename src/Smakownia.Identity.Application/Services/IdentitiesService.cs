@@ -28,7 +28,7 @@ public class IdentitiesService : IIdentitiesService
         _identitiesRepository = identitiesRepository;
     }
 
-    public async Task<TokensResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
+    public async Task<AuthResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
     {
         var identity = await _identitiesRepository.GetByEmailOrDefaultAsync(request.Email, cancellationToken);
 
@@ -39,10 +39,10 @@ public class IdentitiesService : IIdentitiesService
 
         var accessToken = _tokensService.CreateAccessToken(GetClaims(identity.Id, identity.Role));
 
-        return new(accessToken);
+        return new(accessToken, identity.Role);
     }
 
-    public async Task<TokensResponse> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
+    public async Task<AuthResponse> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
     {
         var identityWithSameEmail = await _identitiesRepository.GetByEmailOrDefaultAsync(request.Email, cancellationToken);
 
@@ -59,7 +59,7 @@ public class IdentitiesService : IIdentitiesService
 
         var accessToken = _tokensService.CreateAccessToken(GetClaims(identity.Id, identity.Role));
 
-        return new(accessToken);
+        return new(accessToken, identity.Role);
     }
 
     private static IEnumerable<Claim> GetClaims(Guid id, string role)
