@@ -25,6 +25,8 @@ public class TokensService : ITokensService
                 signingCredentials: signinCredentials,
                 claims: claims);
 
-        return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+        var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+
+        return $"Bearer {token}";
     }
 }

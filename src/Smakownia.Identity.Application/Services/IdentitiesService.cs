@@ -1,4 +1,5 @@
-﻿using Smakownia.Identity.Application.Exceptions;
+﻿using Microsoft.IdentityModel.JsonWebTokens;
+using Smakownia.Identity.Application.Exceptions;
 using Smakownia.Identity.Application.Requests;
 using Smakownia.Identity.Application.Responses;
 using Smakownia.Identity.Domain;
@@ -36,7 +37,7 @@ public class IdentitiesService : IIdentitiesService
             throw new UnauthorizedException();
         }
 
-        var accessToken = _tokensService.CreateAccessToken(GetClaims(identity.Id));
+        var accessToken = _tokensService.CreateAccessToken(GetClaims(identity.Id, identity.Role));
 
         return new(accessToken);
     }
@@ -56,16 +57,17 @@ public class IdentitiesService : IIdentitiesService
         _identitiesRepository.Add(identity);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        var accessToken = _tokensService.CreateAccessToken(GetClaims(identity.Id));
+        var accessToken = _tokensService.CreateAccessToken(GetClaims(identity.Id, identity.Role));
 
         return new(accessToken);
     }
 
-    private static IEnumerable<Claim> GetClaims(Guid id)
+    private static IEnumerable<Claim> GetClaims(Guid id, string role)
     {
         return new List<Claim>
         {
-            new("sub", id.ToString())
+            new(JwtRegisteredClaimNames.Sub, id.ToString()),
+            new(ClaimTypes.Role, role)
         };
     }
 }
