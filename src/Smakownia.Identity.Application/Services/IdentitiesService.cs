@@ -11,14 +11,17 @@ namespace Smakownia.Identity.Application.Services;
 public class IdentitiesService : IIdentitiesService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPasswordHasherService _passwordHasherService;
     private readonly ITokensService _tokensService;
     private readonly IIdentitiesRepository _identitiesRepository;
 
     public IdentitiesService(IUnitOfWork unitOfWork,
+                             IPasswordHasherService passwordHasherService,
                              ITokensService tokensService,
                              IIdentitiesRepository identitiesRepository)
     {
         _unitOfWork = unitOfWork;
+        _passwordHasherService = passwordHasherService;
         _tokensService = tokensService;
         _identitiesRepository = identitiesRepository;
     }
@@ -27,7 +30,7 @@ public class IdentitiesService : IIdentitiesService
     {
         var identity = await _identitiesRepository.GetByEmailOrDefaultAsync(request.Email, cancellationToken);
 
-        if (identity is null || identity.Password != request.Password)
+        if (identity is null || !_passwordHasherService.VerifyPassword(request.Password, identity.Password))
         {
             throw new UnauthorizedException();
         }
@@ -46,7 +49,9 @@ public class IdentitiesService : IIdentitiesService
             throw new IdentityWithSameEmailExistsException(request.Email);
         }
 
-        var identity = new IdentityEntity(request.Email, request.Password);
+        var hashedPassword = _passwordHasherService.HashPassword(request.Password);
+        var identity = new IdentityEntity(request.Email, hashedPassword);
+
         _identitiesRepository.Add(identity);
         await _unitOfWork.CommitAsync(cancellationToken);
 
