@@ -5,6 +5,7 @@ using Smakownia.Identity.Domain;
 using Smakownia.Identity.Domain.Entities;
 using Smakownia.Identity.Domain.Exceptions;
 using Smakownia.Identity.Domain.Repositories;
+using System.Security.Claims;
 
 namespace Smakownia.Identity.Application.Services;
 
@@ -35,7 +36,7 @@ public class IdentitiesService : IIdentitiesService
             throw new UnauthorizedException();
         }
 
-        var accessToken = _tokensService.CreateAccessToken(cancellationToken);
+        var accessToken = _tokensService.CreateAccessToken(GetClaims(identity.Id));
 
         return new(accessToken);
     }
@@ -55,8 +56,16 @@ public class IdentitiesService : IIdentitiesService
         _identitiesRepository.Add(identity);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        var accessToken = _tokensService.CreateAccessToken(cancellationToken);
+        var accessToken = _tokensService.CreateAccessToken(GetClaims(identity.Id));
 
         return new(accessToken);
+    }
+
+    private static IEnumerable<Claim> GetClaims(Guid id)
+    {
+        return new List<Claim>
+        {
+            new("sub", id.ToString())
+        };
     }
 }
