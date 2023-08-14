@@ -17,14 +17,14 @@ public class IdentitiesController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<TokensResponse>> Login([FromBody] LoginRequest loginRequest,
+    public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest loginRequest,
                                                           CancellationToken cancellationToken)
     {
         return Ok(await _identitiesService.LoginAsync(loginRequest, cancellationToken));
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<TokensResponse>> Register([FromBody] RegisterRequest registerRequest,
+    public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest registerRequest,
                                                              CancellationToken cancellationToken)
     {
         return Ok(await _identitiesService.RegisterAsync(registerRequest, cancellationToken));

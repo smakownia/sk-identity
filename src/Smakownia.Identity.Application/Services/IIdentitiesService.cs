@@ -5,6 +5,6 @@ namespace Smakownia.Identity.Application.Services;
 
 public interface IIdentitiesService
 {
-    Task<TokensResponse> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default);
-    Task<TokensResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default);
+    Task<AuthResponse> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default);
+    Task<AuthResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default);
 }
