@@ -1,6 +1,8 @@
-﻿namespace Smakownia.Identity.Application.Services;
+﻿using System.Security.Claims;
+
+namespace Smakownia.Identity.Application.Services;
 
 public interface ITokensService
 {
-    string CreateAccessToken(CancellationToken cancellationToken = default);
+    string CreateAccessToken(IEnumerable<Claim> claims);
 }
