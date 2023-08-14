@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  smakownia.identity.api:
+    ports:
+      - 8003:80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+  ms-sql:
+    ports:
+      - 1434:1433

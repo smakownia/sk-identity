@@ -1,0 +1,30 @@
+version: '3.4'
+
+services:
+  smakownia.identity.api:
+    image: ${DOCKER_REGISTRY-}smakowniaidentityapi
+    build:
+      context: .
+      dockerfile: src/Smakownia.Identity.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+    networks:
+      - default
+      - smakownia
+    depends_on:
+      - ms-sql
+  ms-sql:
+    image: mcr.microsoft.com/mssql/server:2019-CU14-ubuntu-20.04
+    volumes:
+      - ms-sql-data:/var/opt/mssql
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=yourStrong(!)Password
+
+volumes:
+  ms-sql-data:
+
+networks:
+  smakownia:
+    name: smakownia
