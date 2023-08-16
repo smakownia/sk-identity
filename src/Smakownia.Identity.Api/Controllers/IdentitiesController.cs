@@ -24,7 +24,7 @@ public class IdentitiesController : ControllerBase
 
         Response.Cookies.Append("Authorization",
                                 authModel.AccessToken,
-                                new CookieOptions()
+                                new CookieOptions
                                 {
                                     Expires = DateTime.Now.AddDays(7),
                                     HttpOnly = true
@@ -41,7 +41,7 @@ public class IdentitiesController : ControllerBase
 
         Response.Cookies.Append("Authorization",
                                 authModel.AccessToken,
-                                new CookieOptions()
+                                new CookieOptions
                                 {
                                     Expires = DateTime.Now.AddDays(7),
                                     HttpOnly = true

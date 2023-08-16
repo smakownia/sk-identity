@@ -11,7 +11,7 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<IdentityContext>(opt => opt.UseSqlServer(configuration.GetConnectionString("MsSql")));
+        services.AddDbContext<IdentityContext>(opt => opt.UseNpgsql(configuration.GetConnectionString("Postgres")));
 
         services.AddTransient<IIdentitiesRepository, IdentitiesRepository>();
         services.AddTransient<IUnitOfWork, UnitOfWork>();
