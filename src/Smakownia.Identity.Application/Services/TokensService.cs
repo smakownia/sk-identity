@@ -15,18 +15,16 @@ public class TokensService : ITokensService
         _secretKey = configuration["SecretKey"];
     }
 
-    public string CreateAccessToken(IEnumerable<Claim> claims)
+    public string CreateAccessToken(IEnumerable<Claim> claims, DateTime expires)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
         var signinCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var tokenOptions = new JwtSecurityToken(
-                expires: DateTime.Now.AddMinutes(15),
+                expires: expires,
                 signingCredentials: signinCredentials,
                 claims: claims);
 
-        var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
-
-        return $"Bearer {token}";
+        return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
     }
 }
