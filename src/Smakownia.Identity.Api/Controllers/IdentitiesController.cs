@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Smakownia.Identity.Application.Models;
 using Smakownia.Identity.Application.Requests;
-using Smakownia.Identity.Application.Responses;
 using Smakownia.Identity.Application.Services;
 
 namespace Smakownia.Identity.Api.Controllers;
@@ -17,16 +17,44 @@ public class IdentitiesController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest loginRequest,
-                                                          CancellationToken cancellationToken)
+    public async Task<ActionResult<AuthModel>> Login([FromBody] LoginRequest loginRequest,
+                                                     CancellationToken cancellationToken)
     {
-        return Ok(await _identitiesService.LoginAsync(loginRequest, cancellationToken));
+        var authModel = await _identitiesService.LoginAsync(loginRequest, cancellationToken);
+
+        Response.Cookies.Append("Authorization",
+                                authModel.AccessToken,
+                                new CookieOptions()
+                                {
+                                    Expires = DateTime.Now.AddDays(7),
+                                    HttpOnly = true
+                                });
+
+        return Ok(authModel.Response);
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest registerRequest,
-                                                             CancellationToken cancellationToken)
+    public async Task<ActionResult<AuthModel>> Register([FromBody] RegisterRequest registerRequest,
+                                                        CancellationToken cancellationToken)
     {
-        return Ok(await _identitiesService.RegisterAsync(registerRequest, cancellationToken));
+        var authModel = await _identitiesService.RegisterAsync(registerRequest, cancellationToken);
+
+        Response.Cookies.Append("Authorization",
+                                authModel.AccessToken,
+                                new CookieOptions()
+                                {
+                                    Expires = DateTime.Now.AddDays(7),
+                                    HttpOnly = true
+                                });
+
+        return Ok(authModel.Response);
+    }
+
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("Authorization");
+
+        return Ok();
     }
 }

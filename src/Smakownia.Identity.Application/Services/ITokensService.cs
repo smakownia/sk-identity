@@ -4,5 +4,5 @@ namespace Smakownia.Identity.Application.Services;
 
 public interface ITokensService
 {
-    string CreateAccessToken(IEnumerable<Claim> claims);
+    string CreateAccessToken(IEnumerable<Claim> claims, DateTime expires);
 }

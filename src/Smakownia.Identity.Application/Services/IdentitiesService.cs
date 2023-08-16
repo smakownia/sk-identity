@@ -1,5 +1,6 @@
 ﻿using Microsoft.IdentityModel.JsonWebTokens;
 using Smakownia.Identity.Application.Exceptions;
+using Smakownia.Identity.Application.Models;
 using Smakownia.Identity.Application.Requests;
 using Smakownia.Identity.Application.Responses;
 using Smakownia.Identity.Domain;
@@ -28,7 +29,7 @@ public class IdentitiesService : IIdentitiesService
         _identitiesRepository = identitiesRepository;
     }
 
-    public async Task<AuthResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
+    public async Task<AuthModel> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
     {
         var identity = await _identitiesRepository.GetByEmailOrDefaultAsync(request.Email, cancellationToken);
 
@@ -37,12 +38,13 @@ public class IdentitiesService : IIdentitiesService
             throw new UnauthorizedException();
         }
 
-        var accessToken = _tokensService.CreateAccessToken(GetClaims(identity.Id, identity.Role));
+        var expires = DateTime.Now.AddMinutes(15);
+        var accessToken = _tokensService.CreateAccessToken(GetClaims(identity), expires);
 
-        return new(accessToken, identity.Role);
+        return new(accessToken, new IdentityResponse(expires, identity.Role));
     }
 
-    public async Task<AuthResponse> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
+    public async Task<AuthModel> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
     {
         var identityWithSameEmail = await _identitiesRepository.GetByEmailOrDefaultAsync(request.Email, cancellationToken);
 
@@ -57,17 +59,18 @@ public class IdentitiesService : IIdentitiesService
         _identitiesRepository.Add(identity);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        var accessToken = _tokensService.CreateAccessToken(GetClaims(identity.Id, identity.Role));
+        var expires = DateTime.Now.AddMinutes(15);
+        var accessToken = _tokensService.CreateAccessToken(GetClaims(identity), expires);
 
-        return new(accessToken, identity.Role);
+        return new(accessToken, new IdentityResponse(expires, identity.Role));
     }
 
-    private static IEnumerable<Claim> GetClaims(Guid id, string role)
+    private static IEnumerable<Claim> GetClaims(IdentityEntity identity)
     {
         return new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, id.ToString()),
-            new(ClaimTypes.Role, role)
+            new(JwtRegisteredClaimNames.Sub, identity.Id.ToString()),
+            new(ClaimTypes.Role, identity.Role)
         };
     }
 }
