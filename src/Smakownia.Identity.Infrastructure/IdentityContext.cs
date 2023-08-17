@@ -10,6 +10,14 @@ public class IdentityContext : DbContext
 
     public DbSet<IdentityEntity> Identities { get; set; }
 
+    public void ApplyMigrations()
+    {
+        if (Database.GetPendingMigrations().Any())
+        {
+            Database.Migrate();
+        }
+    }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfiguration(new IdentityEntityConfiguration());
