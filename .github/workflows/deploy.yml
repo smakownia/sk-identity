@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feature/19-add-cd
 
 jobs:
   deploy:
