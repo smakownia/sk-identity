@@ -15,7 +15,8 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    scope.ServiceProvider.GetRequiredService<IdentityContext>().ApplyMigrations();
+    var db = scope.ServiceProvider.GetRequiredService<SomeDbContext>();
+    db.Database.Migrate();
 }
 
 if (app.Environment.IsDevelopment())
